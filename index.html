@@ -14,6 +14,8 @@
 
 <body>
     <textarea id="textarea" rows="30" style="font-size: 12pt; font-family: monospace; width: 99vw"></textarea>
+    
+    <button id="save">Save</button>
 
     <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
     <script>
@@ -39,20 +41,28 @@
         });
         
         
+        document.getElementById('save').addEventListener('click', function() {
+            saveInfo();
+        });
+        
         textarea.onkeydown = function(e) {
             if (e.metaKey && e.keyCode === 83) {
                 if (!isSaved) {
                     console.log('saving...');
                     isSaved = true;
-                    ref.set({
-                        text: textarea.value
-                    });
+                    saveInfo();
                 }
                 e.preventDefault();
             } else {
                 isSaved = false;
             }
         };
+        
+        function saveInfo() {
+            ref.set({
+                text: textarea.value
+            });
+        }
         
         
         window.onbeforeunload = function() {
