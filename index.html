@@ -30,6 +30,7 @@
         
         var ref = firebase.database().ref();
         var textarea = document.getElementById('textarea');
+        var isSaved = false;
         
         
         // init data
@@ -40,11 +41,22 @@
         
         textarea.onkeydown = function(e) {
             if (e.metaKey && e.keyCode === 83) {
-                ref.set({
-                    text: textarea.value
-                });
+                if (!isSaved) {
+                    console.log('saving...');
+                    isSaved = true;
+                    ref.set({
+                        text: textarea.value
+                    });
+                }
                 e.preventDefault();
+            } else {
+                isSaved = false;
             }
+        };
+        
+        
+        window.onbeforeunload = function() {
+            if(!isSaved) return 'You have unsaved changes!';
         };
     </script>
 </body>
