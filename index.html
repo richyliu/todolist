@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Todo List">
+    
+    <title>Todo List Tracker</title>
+    
+</head>
+
+<body>
+    <textarea id="textarea" cols="100" rows="20" style="font-size: 12pt;"></textarea>
+
+    <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+    <script>
+        /* global firebase */
+        
+        
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyDJCb1IQlPbKwe87kayevz0Mri8QVlAKhE",
+            authDomain: "todolist-1a1a7.firebaseapp.com",
+            databaseURL: "https://todolist-1a1a7.firebaseio.com",
+            storageBucket: "",
+        });
+        
+        var ref = firebase.database().ref();
+        var textarea = document.getElementById('textarea');
+        
+        
+        // init data
+        ref.child('text').on('value', function(snapshot) {
+            textarea.value = snapshot.val();
+        });
+        
+        
+        textarea.onkeydown = function(e) {
+            if (e.metaKey && e.keyCode === 83) {
+                ref.set({
+                    text: textarea.value
+                });
+                e.preventDefault();
+            }
+        };
+    </script>
+</body>
+
+</html>
