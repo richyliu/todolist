@@ -28,8 +28,11 @@
     
 
     <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+    <script src="https://cdn.rawgit.com/bitwiseshiftleft/sjcl/a1429fc29314bdeb76156aa5a1bef1c2b2e63ade/sjcl.js"></script>
+    
     <script>
         /* global firebase */
+        /* global sjcl */
         
         
         // Initialize Firebase
@@ -43,11 +46,17 @@
         var ref = firebase.database().ref();
         var textarea = document.getElementById('textarea');
         var isSaved = false;
+        var password = prompt('Please enter your password!');
         
         
         // init data
-        ref.child('text').on('value', function(snapshot) {
-            textarea.value = snapshot.val();
+        ref.child('text').once('value', function(snapshot) {
+            try {
+                textarea.value = sjcl.decrypt(password, JSON.stringify(JSON.parse(snapshot.val())));
+            } catch (e) {
+                console.error(e);
+                alert('Wrong password!');
+            }
         });
         
         
@@ -56,21 +65,15 @@
         });
         
         textarea.onkeydown = function(e) {
+            // presses command-S
             if (e.metaKey && e.keyCode === 83) {
-                if (!isSaved) {
-                    console.log('saving...');
-                    isSaved = true;
-                    saveInfo();
-                }
-                e.preventDefault();
-            } else {
-                isSaved = false;
+                saveInfo();
             }
         };
         
         function saveInfo() {
             ref.set({
-                text: textarea.value
+                text: sjcl.encrypt(password, textarea.value)
             });
         }
     </script>
