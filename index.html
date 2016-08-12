@@ -24,58 +24,67 @@
     
     <button id="save">Save</button>
     
-    <textarea id="textarea" rows="40"></textarea>
+    <textarea id="textarea" rows="40" id="main"></textarea>
     
 
     <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
-    <script src="https://cdn.rawgit.com/bitwiseshiftleft/sjcl/a1429fc29314bdeb76156aa5a1bef1c2b2e63ade/sjcl.js"></script>
+    <script src="https://cdn.rawgit.com/bitwiseshiftleft/sjcl/master/sjcl.js"></script>
+    <script src="https://cdn.tinymce.com/4/tinymce.min.js"></script>
     
     <script>
         /* global firebase */
         /* global sjcl */
         
         
-        // Initialize Firebase
-        firebase.initializeApp({
-            apiKey: "AIzaSyDJCb1IQlPbKwe87kayevz0Mri8QVlAKhE",
-            authDomain: "todolist-1a1a7.firebaseapp.com",
-            databaseURL: "https://todolist-1a1a7.firebaseio.com",
-            storageBucket: "",
-        });
+        // init tinyMCE
+        var t;
+        tinymce.init({
+            selector: 'textarea'
+        }).then(function(editor) {
+            t = editor[0];
         
-        var ref = firebase.database().ref();
-        var textarea = document.getElementById('textarea');
-        var isSaved = false;
-        var password = prompt('Please enter your password!');
-        
-        
-        // init data
-        ref.child('text').once('value', function(snapshot) {
-            try {
-                textarea.value = sjcl.decrypt(password, JSON.stringify(JSON.parse(snapshot.val())));
-            } catch (e) {
-                console.error(e);
-                alert('Wrong password!');
-            }
-        });
-        
-        
-        document.getElementById('save').addEventListener('click', function() {
-            saveInfo();
-        });
-        
-        textarea.onkeydown = function(e) {
-            // presses command-S
-            if (e.metaKey && e.keyCode === 83) {
-                saveInfo();
-            }
-        };
-        
-        function saveInfo() {
-            ref.set({
-                text: sjcl.encrypt(password, textarea.value)
+            
+            // Initialize Firebase
+            firebase.initializeApp({
+                apiKey: "AIzaSyDJCb1IQlPbKwe87kayevz0Mri8QVlAKhE",
+                authDomain: "todolist-1a1a7.firebaseapp.com",
+                databaseURL: "https://todolist-1a1a7.firebaseio.com",
+                storageBucket: "",
             });
-        }
+            
+            var ref = firebase.database().ref();
+            var textarea = document.getElementById('textarea');
+            var password = prompt('Please enter your password!') || '';
+            
+            
+            // init data
+            ref.child('text').once('value', function(snapshot) {
+                try {
+                    t.setContent(sjcl.decrypt(password, JSON.stringify(JSON.parse(snapshot.val()))));
+                } catch (e) {
+                    console.error(e);
+                    alert('Wrong password!');
+                }
+            });
+            
+            
+            document.getElementById('save').addEventListener('click', function() {
+                saveInfo();
+            });
+            
+            textarea.onkeydown = function(e) {
+                // presses command-S
+                if (e.metaKey && e.keyCode === 83) {
+                    saveInfo();
+                }
+            };
+            
+            function saveInfo() {
+                ref.set({
+                    text: sjcl.encrypt(password, t.getContent())
+                });
+            }
+        });
     </script>
 </body>
 
