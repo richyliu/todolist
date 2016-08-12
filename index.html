@@ -10,19 +10,9 @@
     
     <title>Todo List Tracker</title>
     
-    <style type="text/css">
-        #textarea {
-            font-size: 12pt;
-            font-family: monospace;
-            width: 98vw;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 
 <body>
-    
-    <button id="save">Save</button>
     
     <textarea id="textarea" rows="40" id="main"></textarea>
     
@@ -34,27 +24,41 @@
     <script>
         /* global firebase */
         /* global sjcl */
+        /* global tinymce */
+        
+        
+        // Initialize Firebase
+        firebase.initializeApp({
+            apiKey: "AIzaSyDJCb1IQlPbKwe87kayevz0Mri8QVlAKhE",
+            authDomain: "todolist-1a1a7.firebaseapp.com",
+            databaseURL: "https://todolist-1a1a7.firebaseio.com",
+            storageBucket: "",
+        });
+        
+        var ref = firebase.database().ref();
+        var password = prompt('Please enter your password!');
+        if (!password) {
+            throw new Error('Please enter a password');
+        }
         
         
         // init tinyMCE
         var t;
         tinymce.init({
-            selector: 'textarea'
+            selector: 'textarea',
+            toolbar: 'fontselect, fontsizeselect | undo, redo, bold, italic, underline, strikethrough | alignleft, aligncenter, alignright, alignjustify, bullist, numlist, save-button',
+            statusbar: false,
+            plugins: 'autoresize',
+            autoresize_max_height: window.innerHeight - 90,
+            setup: function(editor) {
+                editor.addButton('save-button', {
+                    text: 'Save',
+                    icon: false,
+                    onclick: saveInfo
+                });
+            }
         }).then(function(editor) {
             t = editor[0];
-        
-            
-            // Initialize Firebase
-            firebase.initializeApp({
-                apiKey: "AIzaSyDJCb1IQlPbKwe87kayevz0Mri8QVlAKhE",
-                authDomain: "todolist-1a1a7.firebaseapp.com",
-                databaseURL: "https://todolist-1a1a7.firebaseio.com",
-                storageBucket: "",
-            });
-            
-            var ref = firebase.database().ref();
-            var textarea = document.getElementById('textarea');
-            var password = prompt('Please enter your password!') || '';
             
             
             // init data
@@ -66,25 +70,14 @@
                     alert('Wrong password!');
                 }
             });
-            
-            
-            document.getElementById('save').addEventListener('click', function() {
-                saveInfo();
-            });
-            
-            textarea.onkeydown = function(e) {
-                // presses command-S
-                if (e.metaKey && e.keyCode === 83) {
-                    saveInfo();
-                }
-            };
-            
-            function saveInfo() {
-                ref.set({
-                    text: sjcl.encrypt(password, t.getContent())
-                });
-            }
         });
+        
+        
+        function saveInfo() {
+            ref.set({
+                text: sjcl.encrypt(password, t.getContent())
+            });
+        }
     </script>
 </body>
 
