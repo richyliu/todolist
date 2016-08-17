@@ -19,12 +19,14 @@
 
     <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
     <script src="https://cdn.rawgit.com/bitwiseshiftleft/sjcl/master/sjcl.js"></script>
+    <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
     <script src="https://cdn.tinymce.com/4/tinymce.min.js"></script>
     
     <script>
         /* global firebase */
         /* global sjcl */
         /* global tinymce */
+        /* global alertify */
         
         
         // Initialize Firebase
@@ -36,14 +38,33 @@
         });
         
         var ref = firebase.database().ref();
-        var password = prompt('Please enter your password!');
-        if (!password) {
-            throw new Error('Please enter a password');
-        }
+        var password;
+        
+        
+        
+        alertify.prompt("Enter your password", function(val, ev) {
+                ev.preventDefault();
+                password = val;
+                
+                
+                // init data
+                ref.child('text').once('value', function(snapshot) {
+                    try {
+                        editor.setContent(sjcl.decrypt(password, JSON.stringify(JSON.parse(snapshot.val()))));
+                    } catch (e) {
+                        console.error(e);
+                        alert('Wrong password!');
+                    }
+                });
+            }, function(ev) {
+                ev.preventDefault();
+            }
+        );
+        
         
         
         // init tinyMCE
-        var t;
+        var editor;
         tinymce.init({
             selector: 'textarea',
             toolbar: 'fontselect, fontsizeselect | undo, redo, bold, italic, underline, strikethrough | alignleft, aligncenter, alignright, alignjustify, bullist, numlist, save-button',
@@ -54,30 +75,32 @@
                 editor.addButton('save-button', {
                     text: 'Save',
                     icon: false,
-                    onclick: saveInfo
+                    onclick: function() {
+                        if (password) {
+                            ref.set({
+                                text: sjcl.encrypt(password, editor.getContent())
+                            });
+                        }
+                    }
                 });
             }
-        }).then(function(editor) {
-            t = editor[0];
-            
-            
-            // init data
-            ref.child('text').once('value', function(snapshot) {
-                try {
-                    t.setContent(sjcl.decrypt(password, JSON.stringify(JSON.parse(snapshot.val()))));
-                } catch (e) {
-                    console.error(e);
-                    alert('Wrong password!');
-                }
-            });
+        }).then(function(editors) {
+            editor = editors[0];
         });
         
         
-        function saveInfo() {
-            ref.set({
-                text: sjcl.encrypt(password, t.getContent())
-            });
-        }
+        
+        var alertInput = document.querySelectorAll('.alertify>.dialog>div>input')[0];
+        
+        // make the input type password
+        alertInput.setAttribute('type', 'password');
+        
+        alertInput.onkeydown = function(e) {
+            if (e.keyCode === 13) {
+                // click ok button
+                document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
+            }
+        };
     </script>
 </body>
 
