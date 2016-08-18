@@ -67,9 +67,16 @@
         var editor;
         tinymce.init({
             selector: 'textarea',
-            toolbar: 'fontselect, fontsizeselect | undo, redo, bold, italic, underline, strikethrough | alignleft, aligncenter, alignright, alignjustify, bullist, numlist, save-button',
+            toolbar: 'fontselect fontsizeselect | undo redo forecolor backcolor | alignleft aligncenter alignright alignjustify bold italic underline strikethrough | bullist numlist save-button',
+            menu: {
+                file: {title: 'File', items: 'print'},
+                edit: {title: 'Edit', items: 'cut copy paste pastetext | selectall searchreplace'},
+                insert: {title: 'Insert', items: 'charmap insertdatetime'},
+                format: {title: 'Format', items: ' superscript subscript | formats | removeformat'},
+                table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'}
+            },
             statusbar: false,
-            plugins: 'autoresize',
+            plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace',
             autoresize_max_height: window.innerHeight - 90,
             setup: function(editor) {
                 editor.addButton('save-button', {
