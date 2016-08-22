@@ -14,17 +14,21 @@
 
 <body>
     
+    <div id="menu">
+        <a href="#" id="link-main">main</a>
+        <a href="#" id="link-password">password</a>
+        <a href="#" id="link-side">side</a>
+        <a href="#" id="link-text">text</a>
+    </div>
     <textarea id="textarea" rows="40" id="main"></textarea>
     
 
     <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
-    <script src="https://cdn.rawgit.com/bitwiseshiftleft/sjcl/master/sjcl.js"></script>
     <script src="https://cdn.rawgit.com/alertifyjs/alertify.js/v1.0.10/dist/js/alertify.js"></script>
     <script src="https://cdn.tinymce.com/4/tinymce.min.js"></script>
     
     <script>
         /* global firebase */
-        /* global sjcl */
         /* global tinymce */
         /* global alertify */
         
@@ -39,6 +43,7 @@
         
         var ref = firebase.database().ref();
         var password;
+        var currentNotepad = 'main';
         
         
         
@@ -46,15 +51,11 @@
                 ev.preventDefault();
                 password = val;
                 
-                
-                // init data
-                ref.child('text').once('value', function(snapshot) {
-                    try {
-                        editor.setContent(sjcl.decrypt(password, JSON.stringify(JSON.parse(snapshot.val()))));
-                    } catch (e) {
-                        console.error(e);
-                        alert('Wrong password!');
-                    }
+                firebase.auth().signInWithEmailAndPassword('a@a.com', password).then(function() {
+                    // init data
+                    loadNotepad('main');
+                }).catch(function(error) {
+                    alertify.alert(error.message);
                 });
             }, function(ev) {
                 ev.preventDefault();
@@ -77,16 +78,15 @@
             },
             statusbar: false,
             plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace',
-            autoresize_max_height: window.innerHeight - 90,
+            autoresize_max_height: window.innerHeight - 110,
             setup: function(editor) {
                 editor.addButton('save-button', {
                     text: 'Save',
                     icon: false,
                     onclick: function() {
                         if (password) {
-                            ref.set({
-                                text: sjcl.encrypt(password, editor.getContent())
-                            });
+                            // save notepad content
+                            ref.child(currentNotepad).set(document.getElementById('textarea_ifr').contentDocument.getElementById('tinymce').innerHTML);
                         }
                     }
                 });
@@ -108,6 +108,30 @@
                 document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
             }
         };
+        
+        
+        
+        document.getElementById('link-main').onclick = function() {
+            loadNotepad('main');
+        };
+        document.getElementById('link-password').onclick = function() {
+            loadNotepad('password');
+        };
+        document.getElementById('link-side').onclick = function() {
+            loadNotepad('side');
+        };
+        document.getElementById('link-text').onclick = function() {
+            loadNotepad('text');
+        };
+        
+        
+        
+        function loadNotepad(notepad) {
+            currentNotepad = notepad;
+            ref.child(currentNotepad).once('value', function(snapshot) {
+                editor.setContent(snapshot.val());
+            });
+        }
     </script>
 </body>
 
