@@ -65,6 +65,18 @@
                     ev.preventDefault();
                 }
             );
+            
+            var alertInput = document.querySelectorAll('.alertify>.dialog>div>input')[0];
+        
+            // make the input type password
+            alertInput.setAttribute('type', 'password');
+            
+            alertInput.onkeydown = function(e) {
+                if (e.keyCode === 13) {
+                    // click ok button
+                    document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
+                }
+            };
         }
         
         
@@ -100,19 +112,6 @@
             editor = editors[0];
         });
         
-        
-        
-        var alertInput = document.querySelectorAll('.alertify>.dialog>div>input')[0];
-        
-        // make the input type password
-        alertInput.setAttribute('type', 'password');
-        
-        alertInput.onkeydown = function(e) {
-            if (e.keyCode === 13) {
-                // click ok button
-                document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
-            }
-        };
         
         
         
