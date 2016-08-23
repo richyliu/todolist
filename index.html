@@ -19,6 +19,7 @@
         <a href="#" id="link-password">password</a>
         <a href="#" id="link-side">side</a>
         <a href="#" id="link-text">text</a>
+        <a href="#" onclick="document.cookie = 'login=true; expires=1 Jan 2030 12:00:00 UTC';">add cookie</a>
     </div>
     <textarea id="textarea" rows="40" id="main"></textarea>
     
@@ -47,7 +48,6 @@
         
         
         
-        // document.cookie = "login=true; expires=1 Jan 2030 12:00:00 UTC";
         if (document.cookie.search('login=true;') > -1) {
             password = window.btoa('T3JuZjAyT0s=');
             // init data
