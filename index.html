@@ -50,20 +50,15 @@
         
         
         if (localStorage.getItem('login') === 'true') {
-            password = window.btoa('T3JuZjAyT0s=');
-            // init data
-            loadNotepad('main');
+            // set password so that it isn't null
+            password = '';
+            firebaseSignIn(window.btoa('T3JuZjAyT0s='));
         } else {
             alertify.prompt("Enter your password", function(val, ev) {
                     ev.preventDefault();
                     password = val;
                     
-                    firebase.auth().signInWithEmailAndPassword('a@a.com', password).then(function() {
-                        // init data
-                        loadNotepad('main');
-                    }).catch(function(error) {
-                        alertify.alert(error.message);
-                    });
+                    firebaseSignIn(password);
                 }, function(ev) {
                     ev.preventDefault();
                 }
@@ -82,6 +77,14 @@
             };
         }
         
+        function firebaseSignIn(pswd) {
+            firebase.auth().signInWithEmailAndPassword('a@a.com', pswd).then(function() {
+                // init data
+                loadNotepad('main');
+            }).catch(function(error) {
+                alertify.alert(error.message);
+            });
+        }
         
         
         // init tinyMCE
