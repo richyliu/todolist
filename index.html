@@ -19,8 +19,9 @@
         <a href="#" id="link-password">password</a>
         <a href="#" id="link-side">side</a>
         <a href="#" id="link-text">text</a>
-        <a href="#" onclick="localStorage.setItem('login','true');">add cookie</a>
-        <a href="#" onclick="localStorage.setItem('login','');">remove cookie</a>
+        <a href="#" onclick="localStorage.setItem('login','true');document.getElementById('is-cookie').innerHTML='yes cookie';">add cookie</a>
+        <a href="#" onclick="localStorage.setItem('login','');document.getElementById('is-cookie').innerHTML='no cookie';">remove cookie</a>
+        <span id="is-cookie">cookie loading...</span>
     </div>
     <textarea id="textarea" rows="40" id="main"></textarea>
     
@@ -51,10 +52,12 @@
         
         
         if (localStorage.getItem('login') === 'true') {
-            // set password so that it isn't null
-            password = '';
-            firebaseSignIn(window.btoa('T3JuZjAyT0s='));
+            document.getElementById('is-cookie').innerHTML = 'yes cookie';
+            // set password
+            password = window.atob('T3JuZjAyT0s=');
+            firebaseSignIn(window.atob('T3JuZjAyT0s='));
         } else {
+            document.getElementById('is-cookie').innerHTML = 'no cookie';
             alertify.prompt("Enter your password", function(val, ev) {
                     ev.preventDefault();
                     password = val;
@@ -83,6 +86,7 @@
                 // init data
                 loadNotepad('main');
             }).catch(function(error) {
+                console.error(error);
                 alertify.alert(error.message);
             });
         }
