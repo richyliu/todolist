@@ -58,12 +58,12 @@
             firebaseSignIn(window.atob('T3JuZjAyT0s='));
         } else {
             document.getElementById('is-cookie').innerHTML = 'no cookie';
-            alertify.prompt("Enter your password", function(val, ev) {
+            alertify.prompt("Enter your password", (val, ev) => {
                     ev.preventDefault();
                     password = val;
                     
                     firebaseSignIn(password);
-                }, function(ev) {
+                }, (ev) => {
                     ev.preventDefault();
                 }
             );
@@ -73,7 +73,7 @@
             // make the input type password
             alertInput.setAttribute('type', 'password');
             
-            alertInput.onkeydown = function(e) {
+            alertInput.onkeydown = (e) => {
                 if (e.keyCode === 13) {
                     // click ok button
                     document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
@@ -82,10 +82,10 @@
         }
         
         function firebaseSignIn(pswd) {
-            firebase.auth().signInWithEmailAndPassword('a@a.com', pswd).then(function() {
+            firebase.auth().signInWithEmailAndPassword('a@a.com', pswd).then(() => {
                 // init data
                 loadNotepad('main');
-            }).catch(function(error) {
+            }).catch((error) => {
                 console.error(error);
                 alertify.alert(error.message);
             });
@@ -107,11 +107,11 @@
             statusbar: false,
             plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace',
             autoresize_max_height: window.innerHeight - 110,
-            setup: function(editor) {
+            setup: (editor) => {
                 editor.addButton('save-button', {
                     text: 'Save',
                     icon: false,
-                    onclick: function() {
+                    onclick: () => {
                         if (password) {
                             // save notepad content
                             ref.child(currentNotepad).set(document.getElementById('textarea_ifr').contentDocument.getElementById('tinymce').innerHTML);
@@ -119,23 +119,23 @@
                     }
                 });
             }
-        }).then(function(editors) {
+        }).then((editors) => {
             editor = editors[0];
         });
         
         
         
         
-        document.getElementById('link-main').onclick = function() {
+        document.getElementById('link-main').onclick = () => {
             loadNotepad('main');
         };
-        document.getElementById('link-password').onclick = function() {
+        document.getElementById('link-password').onclick = () => {
             loadNotepad('password');
         };
-        document.getElementById('link-side').onclick = function() {
+        document.getElementById('link-side').onclick = () => {
             loadNotepad('side');
         };
-        document.getElementById('link-text').onclick = function() {
+        document.getElementById('link-text').onclick = () => {
             loadNotepad('text');
         };
         
@@ -143,7 +143,7 @@
         
         function loadNotepad(notepad) {
             currentNotepad = notepad;
-            ref.child(currentNotepad).once('value', function(snapshot) {
+            ref.child(currentNotepad).once('value', (snapshot) => {
                 editor.setContent(snapshot.val());
             });
         }
