@@ -39,12 +39,12 @@
         
         let ref = firebase.database().ref();
         let currentNotepad = 'main';
-        const password = 'bjN4bmM4KFNyZTg5WCgoZWlzTkVJMGNPSVVMWCk7czhPSUVYMDk';
+        let password;
         
         
         
         // when the auth stated changes, either execute logged in or logged out code
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // logged in
                 loadNotepad('main');
@@ -52,23 +52,20 @@
                 // not logged in
                 // prompt the user for the password
                 alertify.prompt("Enter your password", (val, ev) => {
-                    if (checkPassword(val)) {
-                        alertify.alert('incorrect password');
-                        return;
-                    }
+                    password = val;
                     ev.preventDefault();
                     
                     console.log(password);
                     // onAuthStateChanged will run again after login
-                    firebase.auth().signInWithEmailAndPassword('a@a.com', password);
-                }, (e) => e.preventDefault());
+                    firebase.auth().signInWithEmailAndPassword('a@a.com', password).catch(e => console.error(e));
+                }, e => e.preventDefault());
             
                 let alertInput = document.querySelectorAll('.alertify>.dialog>div>input')[0];
                 // make the input type password
                 alertInput.setAttribute('type', 'password');
                 
                 // "click" the ok button if enter is pressed
-                alertInput.onkeydown = (e) => {
+                alertInput.onkeydown = e => {
                     if (e.keyCode === 13) {
                         // click ok button
                         document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
@@ -76,12 +73,6 @@
                 };
             }
         });
-        
-        
-        // returns true if password is wrong
-        function checkPassword(password) {
-            return password !== window.atob('IWFjdHVhbGx5cG9wdWxhcg==');
-        }
         
         
         // init tinyMCE
@@ -99,7 +90,7 @@
             statusbar: false,
             plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace',
             autoresize_max_height: window.innerHeight - 110,
-            setup: (editor) => {
+            setup: editor => {
                 editor.addButton('save-button', {
                     text: 'Save',
                     icon: false,
@@ -111,14 +102,14 @@
                     }
                 });
             }
-        }).then((editors) => {
+        }).then(editors => {
             editor = editors[0];
         });
         
         
         function loadNotepad(notepad) {
             currentNotepad = notepad;
-            ref.child(currentNotepad).once('value', (snapshot) => editor.setContent(snapshot.val()));
+            ref.child(currentNotepad).once('value', snapshot => editor.setContent(snapshot.val()));
         }
     </script>
 </body>
