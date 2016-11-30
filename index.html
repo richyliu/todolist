@@ -15,13 +15,11 @@
 <body>
     
     <div id="menu">
-        <a href="#" id="link-main">main</a>
-        <a href="#" id="link-password">password</a>
-        <a href="#" id="link-side">side</a>
-        <a href="#" id="link-text">text</a>
-        <a href="#" onclick="localStorage.setItem('login','true');document.getElementById('is-cookie').innerHTML='yes cookie';">add cookie</a>
-        <a href="#" onclick="localStorage.setItem('login','');document.getElementById('is-cookie').innerHTML='no cookie';">remove cookie</a>
-        <span id="is-cookie">cookie loading...</span>
+        <a href="#" onclick="loadNotepad('main')">main</a>
+        <a href="#" onclick="loadNotepad('password')">password</a>
+        <a href="#" onclick="loadNotepad('side')">side</a>
+        <a href="#" onclick="loadNotepad('text')">text</a>
+        <a href="#" onclick="firebase.auth().signOut();editor.setContent('')">logout</a>
     </div>
     <textarea id="textarea" rows="40" id="main"></textarea>
     
@@ -31,13 +29,7 @@
     <script src="https://cdn.tinymce.com/4/tinymce.min.js"></script>
     
     <script>
-        /* global firebase */
-        /* global tinymce */
-        /* global alertify */
-        /* global localStorage */
-        
-        
-        // Initialize Firebase
+        // init Firebase
         firebase.initializeApp({
             apiKey: "AIzaSyDJCb1IQlPbKwe87kayevz0Mri8QVlAKhE",
             authDomain: "todolist-1a1a7.firebaseapp.com",
@@ -45,55 +37,55 @@
             storageBucket: "",
         });
         
-        var ref = firebase.database().ref();
-        var password;
-        var currentNotepad = 'main';
+        let ref = firebase.database().ref();
+        let currentNotepad = 'main';
+        const password = 'bjN4bmM4KFNyZTg5WCgoZWlzTkVJMGNPSVVMWCk7czhPSUVYMDk';
         
         
         
-        if (localStorage.getItem('login') === 'true') {
-            document.getElementById('is-cookie').innerHTML = 'yes cookie';
-            // set password
-            password = window.atob('T3JuZjAyT0s=');
-            firebaseSignIn(window.atob('T3JuZjAyT0s='));
-        } else {
-            document.getElementById('is-cookie').innerHTML = 'no cookie';
-            alertify.prompt("Enter your password", (val, ev) => {
-                    ev.preventDefault();
-                    password = val;
-                    
-                    firebaseSignIn(password);
-                }, (ev) => {
-                    ev.preventDefault();
-                }
-            );
-            
-            var alertInput = document.querySelectorAll('.alertify>.dialog>div>input')[0];
-        
-            // make the input type password
-            alertInput.setAttribute('type', 'password');
-            
-            alertInput.onkeydown = (e) => {
-                if (e.keyCode === 13) {
-                    // click ok button
-                    document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
-                }
-            };
-        }
-        
-        function firebaseSignIn(pswd) {
-            firebase.auth().signInWithEmailAndPassword('a@a.com', pswd).then(() => {
-                // init data
+        // when the auth stated changes, either execute logged in or logged out code
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // logged in
                 loadNotepad('main');
-            }).catch((error) => {
-                console.error(error);
-                alertify.alert(error.message);
-            });
+            } else {
+                // not logged in
+                // prompt the user for the password
+                alertify.prompt("Enter your password", (val, ev) => {
+                    if (checkPassword(val)) {
+                        alertify.alert('incorrect password');
+                        return;
+                    }
+                    ev.preventDefault();
+                    
+                    console.log(password);
+                    // onAuthStateChanged will run again after login
+                    firebase.auth().signInWithEmailAndPassword('a@a.com', password);
+                }, (e) => e.preventDefault());
+            
+                let alertInput = document.querySelectorAll('.alertify>.dialog>div>input')[0];
+                // make the input type password
+                alertInput.setAttribute('type', 'password');
+                
+                // "click" the ok button if enter is pressed
+                alertInput.onkeydown = (e) => {
+                    if (e.keyCode === 13) {
+                        // click ok button
+                        document.querySelectorAll('.alertify>.dialog>div>nav>.ok')[0].click();
+                    }
+                };
+            }
+        });
+        
+        
+        // returns true if password is wrong
+        function checkPassword(password) {
+            return password !== window.atob('IWFjdHVhbGx5cG9wdWxhcg==');
         }
         
         
         // init tinyMCE
-        var editor;
+        let editor;
         tinymce.init({
             selector: 'textarea',
             toolbar: 'fontselect fontsizeselect | undo redo forecolor backcolor | alignleft aligncenter alignright alignjustify bold italic underline strikethrough | bullist numlist save-button',
@@ -114,7 +106,7 @@
                     onclick: () => {
                         if (password) {
                             // save notepad content
-                            ref.child(currentNotepad).set(document.getElementById('textarea_ifr').contentDocument.getElementById('tinymce').innerHTML);
+                            // ref.child(currentNotepad).set(document.querySelectorAll('#textarea_ifr').contentDocument.querySelectorAll('#tinymce').innerHTML);
                         }
                     }
                 });
@@ -124,28 +116,9 @@
         });
         
         
-        
-        
-        document.getElementById('link-main').onclick = () => {
-            loadNotepad('main');
-        };
-        document.getElementById('link-password').onclick = () => {
-            loadNotepad('password');
-        };
-        document.getElementById('link-side').onclick = () => {
-            loadNotepad('side');
-        };
-        document.getElementById('link-text').onclick = () => {
-            loadNotepad('text');
-        };
-        
-        
-        
         function loadNotepad(notepad) {
             currentNotepad = notepad;
-            ref.child(currentNotepad).once('value', (snapshot) => {
-                editor.setContent(snapshot.val());
-            });
+            ref.child(currentNotepad).once('value', (snapshot) => editor.setContent(snapshot.val()));
         }
     </script>
 </body>
