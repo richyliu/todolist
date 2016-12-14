@@ -47,7 +47,7 @@
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // logged in
-                loadNotepad('main');
+                loadNotepad('password');
             } else {
                 // not logged in
                 // prompt the user for the password
@@ -55,7 +55,6 @@
                     password = val;
                     ev.preventDefault();
                     
-                    console.log(password);
                     // onAuthStateChanged will run again after login
                     firebase.auth().signInWithEmailAndPassword('a@a.com', password).catch(e => console.error(e));
                 }, e => e.preventDefault());
@@ -95,10 +94,8 @@
                     text: 'Save',
                     icon: false,
                     onclick: () => {
-                        if (password) {
-                            // save notepad content
-                            ref.child(currentNotepad).set(document.querySelectorAll('#textarea_ifr').contentDocument.querySelectorAll('#tinymce').innerHTML);
-                        }
+                        // save notepad content
+                        ref.child(currentNotepad).set(document.querySelectorAll('#textarea_ifr')[0].contentDocument.querySelectorAll('#tinymce')[0].innerHTML);
                     }
                 });
             }
