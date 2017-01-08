@@ -94,8 +94,20 @@
                     text: 'Save',
                     icon: false,
                     onclick: () => {
-                        // save notepad content
-                        ref.child(currentNotepad).set(document.querySelectorAll('#textarea_ifr')[0].contentDocument.querySelectorAll('#tinymce')[0].innerHTML);
+                        save();
+                    }
+                });
+                
+                editor.on('keydown', (e) => {
+                    // command key or control key
+                    if (e.which === 91 || e.which === 17) {
+                        window.prevKeyCmd = true;
+                    } else if (window.prevKeyCmd && e.which === 83) {
+                        e.preventDefault();
+                        save();
+                        window.prevKeyCmd = false;
+                    } else {
+                        window.prevKeyCmd = false;
                     }
                 });
             }
@@ -107,6 +119,11 @@
         function loadNotepad(notepad) {
             currentNotepad = notepad;
             ref.child(currentNotepad).once('value', snapshot => editor.setContent(snapshot.val()));
+        }
+        
+        function save() {
+            // save notepad content to firebase
+            ref.child(currentNotepad).set(document.querySelectorAll('#textarea_ifr')[0].contentDocument.querySelectorAll('#tinymce')[0].innerHTML);
         }
     </script>
 </body>
