@@ -47,7 +47,7 @@
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // logged in
-                loadNotepad('password');
+                loadNotepad('side');
             } else {
                 // not logged in
                 // prompt the user for the password
@@ -78,7 +78,7 @@
         let editor;
         tinymce.init({
             selector: 'textarea',
-            toolbar: 'fontselect fontsizeselect | undo redo forecolor backcolor | alignleft aligncenter alignright alignjustify bold italic underline strikethrough | bullist numlist save-button',
+            toolbar: 'fontselect fontsizeselect | undo redo forecolor backcolor link | alignleft aligncenter alignright alignjustify bold italic underline strikethrough | bullist numlist save-button',
             menu: {
                 file: {title: 'File', items: 'print'},
                 edit: {title: 'Edit', items: 'cut copy paste pastetext | selectall searchreplace'},
@@ -87,7 +87,7 @@
                 table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'}
             },
             statusbar: false,
-            plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace link',
+            plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace link lists',
             default_link_target: '_blank',
             autoresize_max_height: window.innerHeight - 110,
             setup: editor => {
