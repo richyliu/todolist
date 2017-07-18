@@ -87,7 +87,8 @@
                 table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'}
             },
             statusbar: false,
-            plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace',
+            plugins: 'autoresize table insertdatetime charmap textcolor colorpicker print searchreplace link',
+            default_link_target: '_blank',
             autoresize_max_height: window.innerHeight - 110,
             setup: editor => {
                 editor.addButton('save-button', {
