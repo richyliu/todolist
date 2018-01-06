@@ -47,7 +47,7 @@
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 // logged in
-                loadNotepad('side');
+                loadNotepad('main');
             } else {
                 // not logged in
                 // prompt the user for the password
